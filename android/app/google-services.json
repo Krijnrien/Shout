@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1057174507630",
+    "firebase_url": "https://shout-gsc.firebaseio.com",
+    "project_id": "shout-gsc",
+    "storage_bucket": "shout-gsc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1057174507630:android:dda7469267fe5fa8",
+        "android_client_info": {
+          "package_name": "gsc.shout"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1057174507630-jneoi6tfeo7kk0vl2h8epu89tk4li23j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "gsc.shout",
+            "certificate_hash": "00e66cc1bde2c8e9c7f35191438a27b84a0c9623"
+          }
+        },
+        {
+          "client_id": "1057174507630-1tvrh7elqcav1no3sgsd2tcat7762el9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWgkDlu-5F-347h8JQEZx_WR8vgQLT6vE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1057174507630-1tvrh7elqcav1no3sgsd2tcat7762el9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
