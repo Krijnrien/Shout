@@ -28,7 +28,8 @@ Future<FirebaseUser> signInWithEmail(String _email, String _password) async {
 }
 
 void registerInWithEmail(String _email, String _password) async {
-  _auth.createUserWithEmailAndPassword(email: _email, password: _password);
+  _auth.createUserWithEmailAndPassword(email: _email, password: _password).then
+  Navigator.pushNamed(context, LoginPage.routeName),
 }
 
 

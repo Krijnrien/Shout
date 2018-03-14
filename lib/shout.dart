@@ -21,16 +21,26 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 
+
+part 'package:shout/themes.dart';
+
 part 'package:shout/screens/registerScreen.dart';
 part 'package:shout/screens/loginScreen.dart';
 part 'package:shout/screens/chatScreen.dart';
 part 'package:shout/screens/splashScreen.dart';
 
+part 'package:shout/screens/style.dart';
+part 'package:shout/screens/widgets/inputField.dart';
+part 'package:shout/screens/widgets/button.dart';
+
 part 'package:shout/util/auth.dart';
 
+part 'package:shout/services/validation.dart';
 
 class ShoutApp extends StatelessWidget {
-  @override
+
+  bool _useLightTheme = true;
+
   Widget build(BuildContext _context) {
     var routes = <String, WidgetBuilder>{
       LoginPage.routeName: (BuildContext _context) => new LoginPage(),
@@ -40,9 +50,7 @@ class ShoutApp extends StatelessWidget {
 
     return new MaterialApp(
       home: new RegisterPage(),
-      theme: new ThemeData(
-          primarySwatch: Colors.orange
-      ),
+      theme: (_useLightTheme ? _kGalleryLightTheme : _kGalleryDarkTheme),
       routes: routes,
     );
   }

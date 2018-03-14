@@ -1,63 +1,114 @@
 part of shout;
 
-
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({ Key key }) : super(key: key);
-
   static const String routeName = '/registerPage';
+
+  const RegisterPage({ Key key }) : super(key: key);
 
   @override
   RegisterPageState createState() => new RegisterPageState();
 }
 
-class PersonData {
+class Register {
   String email = '';
   String password = '';
+  bool isAgreed = false;
 }
 
-class RegisterPageState extends State<RegisterPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+class RegisterPageState extends State<RegisterPage>
+    with SingleTickerProviderStateMixin {
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+  Register register = new Register();
+  AnimationController iconAnimationController;
+  Animation<double> iconAnimation;
 
-  PersonData person = new PersonData();
+  @override
+  void initState() {
+    super.initState();
+
+    iconAnimationController = new AnimationController(
+      vsync: this,
+      duration: new Duration(milliseconds: 500),
+    );
+
+    iconAnimation = new CurvedAnimation(
+      parent: iconAnimationController,
+      curve: Curves.easeIn,
+    );
+
+    iconAnimation.addListener(() => this.setState(() {}));
+    iconAnimationController.forward();
+  }
 
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+    scaffoldKey.currentState.showSnackBar(new SnackBar(
         content: new Text(value)
     ));
   }
 
-  bool _autovalidate = false;
-  bool _formWasEdited = false;
-  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  final GlobalKey<FormFieldState<String>> _passwordFieldKey = new GlobalKey<
-      FormFieldState<String>>();
+  bool autoValidate = false;
+  bool formWasEdited = false;
+  final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
+  final GlobalKey<FormFieldState<String>> passwordFieldKey = new GlobalKey<FormFieldState<String>>();
+  //final GlobalKey<FormFieldState<String>> confirmPasswordFieldKey = new GlobalKey<FormFieldState<String>>();
 
   void _handleSubmitted() {
-    final FormState form = _formKey.currentState;
+    final FormState form = formKey.currentState;
     if (!form.validate()) {
-      _autovalidate = true; // Start validating on every change.
+      autoValidate = true; // Start validating on every change.
       showInSnackBar('Please fix the errors in red before submitting.');
     } else {
       form.save();
-      showInSnackBar('${person.email}\'s phone number is');
     }
   }
 
+  String validateName(String value) {
+    if (value.isEmpty) return 'Name is required.';
+    final RegExp nameExp = new RegExp(r'^[A-za-z ]+$');
+    if (!nameExp.hasMatch(value))
+      return 'Please enter only alphabetical characters.';
+    return null;
+  }
 
-  String _validatePassword(String value) {
-    _formWasEdited = true;
-    final FormFieldState<String> passwordField = _passwordFieldKey.currentState;
+  String validateEmail(String value) {
+    if (value.isEmpty) return 'Email is required.';
+    final RegExp nameExp = new RegExp(r'^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$');
+    if (!nameExp.hasMatch(value)) return 'Invalid email address format';
+    return null;
+  }
+
+  String validatePassword(String value) {
+    formWasEdited = true;
+    final FormFieldState<String> passwordField = passwordFieldKey.currentState;
+   // final FormFieldState<String> confirmPassword = confirmPasswordFieldKey.currentState;
     if (passwordField.value == null || passwordField.value.isEmpty)
       return 'Please choose a password.';
+   // if (confirmPassword.value != value)
+   //   return 'Passwords don\'t match';
+    return null;
+  }
+
+  String validateConfirmPassword(String value) {
+    formWasEdited = true;
+  //  final FormFieldState<String> confirmPassword = confirmPasswordFieldKey.currentState;
+    final FormFieldState<String> passwordField = passwordFieldKey.currentState;
+    //if (confirmPassword.value == null || confirmPassword.value.isEmpty)
+   //   return 'Please retype your password.';
     if (passwordField.value != value)
       return 'Passwords don\'t match';
     return null;
   }
 
-  Future<bool> _warnUserAboutInvalidData() async {
-    final FormState form = _formKey.currentState;
-    if (form == null || !_formWasEdited || form.validate())
+  String validateTermsAgreement(bool value){
+    if(value == false) return "To use this app you are required to accept our terms and conditions.";
+    return null;
+  }
+
+  Future<bool> warnUserAboutInvalidData() async {
+    final FormState form = formKey.currentState;
+    if (form == null || !formWasEdited || form.validate()) {
       return true;
+    }
 
     return await showDialog<bool>(
       context: context,
@@ -65,93 +116,176 @@ class RegisterPageState extends State<RegisterPage> {
         title: const Text('This form has errors'),
         content: const Text('Really leave this form?'),
         actions: <Widget>[
+
           new FlatButton(
-            child: const Text('YES'),
+            child: const Text('Yes'),
             onPressed: () {
               Navigator.of(context).pop(true);
             },
           ),
+
           new FlatButton(
-            child: const Text('NO'),
+            child: const Text('No'),
             onPressed: () {
               Navigator.of(context).pop(false);
             },
           ),
+
         ],
       ),
-    ) ?? false;
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery
+        .of(context)
+        .size;
+
     return new Scaffold(
-      key: _scaffoldKey,
-      appBar: new AppBar(
-        title: const Text('Text fields'),
-      ),
-      body: new SafeArea(
-        top: false,
-        bottom: false,
-        child: new Form(
-          key: _formKey,
-          autovalidate: _autovalidate,
-          onWillPop: _warnUserAboutInvalidData,
-          child: new ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            children: <Widget>[
-              new TextFormField(
-                decoration: const InputDecoration(
-                  icon: const Icon(Icons.email),
-                  hintText: 'Your email address',
-                  labelText: 'E-mail',
-                ),
-                keyboardType: TextInputType.emailAddress,
-                onSaved: (String value) {
-                  person.email = value;
-                },
+      key: scaffoldKey,
+      body: new Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          new Container(
+            decoration: new BoxDecoration(
+              gradient: new LinearGradient(
+                begin: new FractionalOffset(0.0, 0.8),
+                end: new FractionalOffset(0.5, 0.0),
+                colors: [
+                  const Color(0xff756b7b),
+                  const Color(0xff944c98),
+                ],
+                tileMode: TileMode.clamp,
               ),
-              new TextFormField(
-                key: _passwordFieldKey,
-                decoration: const InputDecoration(
-                  icon: const Icon(Icons.lock),
-                  hintText: 'New Password',
-                  labelText: 'New Password *',
-                ),
-                obscureText: true,
-                onSaved: (String value) {
-                  person.password = value;
-                },
-              ),
-              new TextFormField(
-                decoration: const InputDecoration(
-                  icon: const Icon(Icons.lock_open),
-                  hintText: 'Re-type Password',
-                  labelText: 'Re-type Password *',
-                ),
-                obscureText: true,
-                onFieldSubmitted: (String value) {
-                  _handleSubmitted();
-                },
-                validator: _validatePassword,
-              ),
-              new Container(
-                padding: const EdgeInsets.all(20.0),
-                alignment: Alignment.center,
-                child: new RaisedButton(
-                  child: const Text('Submit'),
-                  onPressed: _handleSubmitted,
-                ),
-              ),
-              new Container(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: new Text('* indicates required field', style: Theme
-                    .of(context)
-                    .textTheme
-                    .caption),
-              ),
-            ],
+            ),
           ),
-        ),
+
+
+          new SafeArea(
+            top: false,
+            bottom: false,
+            child: new Form(
+              key: formKey,
+              autovalidate: autoValidate,
+              onWillPop: warnUserAboutInvalidData,
+
+              child: new Theme(
+                data: new ThemeData(
+                    brightness: Brightness.light,
+                    primarySwatch: Colors.teal,
+                    backgroundColor: Colors.white,
+                    inputDecorationTheme: new InputDecorationTheme(
+                        labelStyle: new TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                        )
+                    )
+                ),
+
+                child: new ListView(
+                  padding: const EdgeInsets.fromLTRB(25.0, 60.0, 25.0, 25.0),
+                  children: <Widget>[
+                    new FlutterLogo(
+                      size: iconAnimation.value * 100,
+                    ),
+                    new Row(
+                      children: <Widget>[
+                        new Flexible(
+                          child: new InputField(
+                              hintText: "Email",
+                              obscureText: false,
+                              textInputType: TextInputType.emailAddress,
+                              textStyle: textStyle,
+                              textFieldColor: textFieldColor,
+                              icon: Icons.mail_outline,
+                              iconColor: Colors.white,
+                              bottomMargin: 20.0,
+                              validateFunction: validateEmail,
+                              onSaved: (String email) {
+                                register.email = email;
+                              }),
+
+                        ),
+                      ],
+                    ),
+
+                    new InputField(
+                        key: passwordFieldKey,
+                        hintText: "Password",
+                        obscureText: true,
+                        textInputType: TextInputType.text,
+                        textStyle: textStyle,
+                        textFieldColor: textFieldColor,
+                        icon: Icons.vpn_key,
+                        iconColor: Colors.white,
+                        bottomMargin: 40.0,
+                        validateFunction: validatePassword,
+                        onSaved: (String password) {
+                          register.password = password;
+                    }),
+
+                    new InputField(
+                   //     key: confirmPasswordFieldKey,
+                        hintText: "Re-type password",
+                        obscureText: true,
+                        textInputType: TextInputType.text,
+                        textStyle: textStyle,
+                        textFieldColor: textFieldColor,
+                        icon: Icons.lock_outline,
+                        iconColor: Colors.white,
+                        bottomMargin: 40.0,
+                        validateFunction: validateConfirmPassword,
+                    ),
+
+                    new CheckboxListTile(
+                      title: new Text(
+                        'I agree to the Terms and Conditions',
+                        style: new TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                      value: register.isAgreed,
+                      activeColor: Colors.teal,
+                      controlAffinity: ListTileControlAffinity.leading,
+
+                      onChanged: (bool value) {
+                        setState(() {
+                          register.isAgreed = value;
+                        });
+                      },
+
+                    ),
+
+                    new RoundedButton(
+                        buttonName: "Submit",
+                        onTap: _handleSubmitted,
+                        width: screenSize.width,
+                        height: 50.0,
+                        bottomMargin: 10.0,
+                        borderWidth: 1.0),
+
+                    new Container(
+                      alignment: Alignment.center,
+                      child: new InkWell(
+                        child: new Text(
+                          "Already have an account? Login!",
+                          style: new TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        onTap: () =>
+                            Navigator.pushNamed(context, LoginPage.routeName),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
