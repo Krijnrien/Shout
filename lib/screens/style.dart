@@ -1,6 +1,5 @@
 part of shout;
 
-
 TextStyle textStyle = const TextStyle(
     color: const Color(0XFFFFFFFF),
     fontSize: 16.0,

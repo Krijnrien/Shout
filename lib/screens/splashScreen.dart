@@ -10,23 +10,25 @@ class _SplashPageState extends State {
   void initState() {
     super.initState();
 
-    // Listen for our auth event (on reload or start)
-    // Go to our /todos page once logged in
+    new Future.delayed(const Duration(seconds: 1), () => "1");
 
     if (isLoggedIn()) {
-      print('check');
-      //Navigator.pushNamed(context, RegisterPage.routeName);
+      sleep(const Duration(seconds: 3));
+      //Navigator.pushNamed(context, ChatPage.routeName);
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushNamed(ChatPage.routeName);
+      });
     } else {
-      print('cross');
+      sleep(const Duration(seconds: 3));
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushNamed(LoginPage.routeName);
+      });
       //Navigator.pushNamed(context, LoginPage.routeName);
     }
 //
 //    _auth.onAuthStateChanged.firstWhere((user) => user != null).then((user) {
 //
 //    });
-
-    // Give the navigation animations, etc, some time to finish
-    // signInWithGoogle();
   }
 
   @override

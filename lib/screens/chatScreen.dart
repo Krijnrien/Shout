@@ -17,21 +17,26 @@ final auth = FirebaseAuth.instance;
 final reference = FirebaseDatabase.instance.reference().child('messages');
 
 Future<Null> _ensureLoggedIn() async {
-  GoogleSignInAccount user = googleSignIn.currentUser;
-  if (user == null)
-    user = await googleSignIn.signInSilently();
-  if (user == null) {
-    user = await googleSignIn.signIn();
-    analytics.logLogin();
+
+  if (isLoggedIn()) {
+
   }
-  if (await auth.currentUser() == null) {
-    GoogleSignInAuthentication credentials =
-    await googleSignIn.currentUser.authentication;
-    await auth.signInWithGoogle(
-      idToken: credentials.idToken,
-      accessToken: credentials.accessToken,
-    );
-  }
+
+//  GoogleSignInAccount user = googleSignIn.currentUser;
+//  if (user == null)
+//    user = await googleSignIn.signInSilently();
+//  if (user == null) {
+//    user = await googleSignIn.signIn();
+//    analytics.logLogin();
+//  }
+//  if (await auth.currentUser() == null) {
+//    GoogleSignInAuthentication credentials =
+//    await googleSignIn.currentUser.authentication;
+//    await auth.signInWithGoogle(
+//      idToken: credentials.idToken,
+//      accessToken: credentials.accessToken,
+//    );
+//  }
 }
 
 class ChatPage extends StatelessWidget {

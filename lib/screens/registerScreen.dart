@@ -3,7 +3,7 @@ part of shout;
 class RegisterPage extends StatefulWidget {
   static const String routeName = '/registerPage';
 
-  const RegisterPage({ Key key }) : super(key: key);
+  const RegisterPage({Key key}) : super(key: key);
 
   @override
   RegisterPageState createState() => new RegisterPageState();
@@ -41,33 +41,26 @@ class RegisterPageState extends State<RegisterPage>
   }
 
   void showInSnackBar(String value) {
-    scaffoldKey.currentState.showSnackBar(new SnackBar(
-        content: new Text(value)
-    ));
+    scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 
-  bool autoValidate = false;
+  bool autoValidate = true;
   bool formWasEdited = false;
   final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   final GlobalKey<FormFieldState<String>> passwordFieldKey = new GlobalKey<FormFieldState<String>>();
-  //final GlobalKey<FormFieldState<String>> confirmPasswordFieldKey = new GlobalKey<FormFieldState<String>>();
 
-  void _handleSubmitted() {
+  final googleSignIn = new GoogleSignIn();
+  final auth = FirebaseAuth.instance;
+
+  void handleSubmitted() {
     final FormState form = formKey.currentState;
     if (!form.validate()) {
       autoValidate = true; // Start validating on every change.
       showInSnackBar('Please fix the errors in red before submitting.');
     } else {
       form.save();
+      registerWithEmail(register.email, register.password);
     }
-  }
-
-  String validateName(String value) {
-    if (value.isEmpty) return 'Name is required.';
-    final RegExp nameExp = new RegExp(r'^[A-za-z ]+$');
-    if (!nameExp.hasMatch(value))
-      return 'Please enter only alphabetical characters.';
-    return null;
   }
 
   String validateEmail(String value) {
@@ -78,29 +71,21 @@ class RegisterPageState extends State<RegisterPage>
   }
 
   String validatePassword(String value) {
-    formWasEdited = true;
-    final FormFieldState<String> passwordField = passwordFieldKey.currentState;
-   // final FormFieldState<String> confirmPassword = confirmPasswordFieldKey.currentState;
-    if (passwordField.value == null || passwordField.value.isEmpty)
-      return 'Please choose a password.';
-   // if (confirmPassword.value != value)
-   //   return 'Passwords don\'t match';
+    if (value == null || value.isEmpty) return 'Please choose a password.';
+    // if (confirmPassword.value != value)
+    //   return 'Passwords don\'t match';
     return null;
   }
 
   String validateConfirmPassword(String value) {
-    formWasEdited = true;
-  //  final FormFieldState<String> confirmPassword = confirmPasswordFieldKey.currentState;
-    final FormFieldState<String> passwordField = passwordFieldKey.currentState;
-    //if (confirmPassword.value == null || confirmPassword.value.isEmpty)
-   //   return 'Please retype your password.';
-    if (passwordField.value != value)
-      return 'Passwords don\'t match';
+//    final FormFieldState<String> passwordField = passwordFieldKey.currentState;
+//    if (passwordField.value != value) return 'Passwords don\'t match';
     return null;
   }
 
-  String validateTermsAgreement(bool value){
-    if(value == false) return "To use this app you are required to accept our terms and conditions.";
+  String validateTermsAgreement(bool value) {
+    if (value == false)
+      return "To use this app you are required to accept our terms and conditions.";
     return null;
   }
 
@@ -116,21 +101,18 @@ class RegisterPageState extends State<RegisterPage>
         title: const Text('This form has errors'),
         content: const Text('Really leave this form?'),
         actions: <Widget>[
-
           new FlatButton(
             child: const Text('Yes'),
             onPressed: () {
               Navigator.of(context).pop(true);
             },
           ),
-
           new FlatButton(
             child: const Text('No'),
             onPressed: () {
               Navigator.of(context).pop(false);
             },
           ),
-
         ],
       ),
     );
@@ -138,9 +120,7 @@ class RegisterPageState extends State<RegisterPage>
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery
-        .of(context)
-        .size;
+    Size screenSize = MediaQuery.of(context).size;
 
     return new Scaffold(
       key: scaffoldKey,
@@ -160,8 +140,6 @@ class RegisterPageState extends State<RegisterPage>
               ),
             ),
           ),
-
-
           new SafeArea(
             top: false,
             bottom: false,
@@ -169,7 +147,6 @@ class RegisterPageState extends State<RegisterPage>
               key: formKey,
               autovalidate: autoValidate,
               onWillPop: warnUserAboutInvalidData,
-
               child: new Theme(
                 data: new ThemeData(
                     brightness: Brightness.light,
@@ -177,39 +154,28 @@ class RegisterPageState extends State<RegisterPage>
                     backgroundColor: Colors.white,
                     inputDecorationTheme: new InputDecorationTheme(
                         labelStyle: new TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                        )
-                    )
-                ),
-
+                      color: Colors.white,
+                      fontSize: 18.0,
+                    ))),
                 child: new ListView(
                   padding: const EdgeInsets.fromLTRB(25.0, 60.0, 25.0, 25.0),
                   children: <Widget>[
                     new FlutterLogo(
                       size: iconAnimation.value * 100,
                     ),
-                    new Row(
-                      children: <Widget>[
-                        new Flexible(
-                          child: new InputField(
-                              hintText: "Email",
-                              obscureText: false,
-                              textInputType: TextInputType.emailAddress,
-                              textStyle: textStyle,
-                              textFieldColor: textFieldColor,
-                              icon: Icons.mail_outline,
-                              iconColor: Colors.white,
-                              bottomMargin: 20.0,
-                              validateFunction: validateEmail,
-                              onSaved: (String email) {
-                                register.email = email;
-                              }),
-
-                        ),
-                      ],
-                    ),
-
+                    new InputField(
+                        hintText: "Email",
+                        obscureText: false,
+                        textInputType: TextInputType.emailAddress,
+                        textStyle: textStyle,
+                        textFieldColor: textFieldColor,
+                        icon: Icons.mail_outline,
+                        iconColor: Colors.white,
+                        bottomMargin: 20.0,
+                        validateFunction: validateEmail,
+                        onSaved: (String email) {
+                          register.email = email;
+                        }),
                     new InputField(
                         key: passwordFieldKey,
                         hintText: "Password",
@@ -223,21 +189,18 @@ class RegisterPageState extends State<RegisterPage>
                         validateFunction: validatePassword,
                         onSaved: (String password) {
                           register.password = password;
-                    }),
-
+                        }),
                     new InputField(
-                   //     key: confirmPasswordFieldKey,
-                        hintText: "Re-type password",
-                        obscureText: true,
-                        textInputType: TextInputType.text,
-                        textStyle: textStyle,
-                        textFieldColor: textFieldColor,
-                        icon: Icons.lock_outline,
-                        iconColor: Colors.white,
-                        bottomMargin: 40.0,
-                        validateFunction: validateConfirmPassword,
+                      hintText: "Re-type password",
+                      obscureText: true,
+                      textInputType: TextInputType.text,
+                      textStyle: textStyle,
+                      textFieldColor: textFieldColor,
+                      icon: Icons.lock_outline,
+                      iconColor: Colors.white,
+                      bottomMargin: 40.0,
+                      validateFunction: validateConfirmPassword,
                     ),
-
                     new CheckboxListTile(
                       title: new Text(
                         'I agree to the Terms and Conditions',
@@ -249,23 +212,19 @@ class RegisterPageState extends State<RegisterPage>
                       value: register.isAgreed,
                       activeColor: Colors.teal,
                       controlAffinity: ListTileControlAffinity.leading,
-
                       onChanged: (bool value) {
                         setState(() {
                           register.isAgreed = value;
                         });
                       },
-
                     ),
-
                     new RoundedButton(
                         buttonName: "Submit",
-                        onTap: _handleSubmitted,
+                        onTap: handleSubmitted,
                         width: screenSize.width,
                         height: 50.0,
                         bottomMargin: 10.0,
                         borderWidth: 1.0),
-
                     new Container(
                       alignment: Alignment.center,
                       child: new InkWell(
