@@ -177,7 +177,6 @@ class RegisterPageState extends State<RegisterPage>
                           register.email = email;
                         }),
                     new InputField(
-                        key: passwordFieldKey,
                         hintText: "Password",
                         obscureText: true,
                         textInputType: TextInputType.text,
